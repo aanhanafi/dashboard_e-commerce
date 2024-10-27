@@ -21,6 +21,9 @@ header {
     color: #fff;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
     border-bottom: 5px solid #388E3C;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
 /* Title styling */
@@ -41,9 +44,45 @@ header {
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+/* Total Yearly Styling */
+.total-yearly {
+    text-align: center;
+    background-color: #f9f9fc;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 300px;
+    margin-top: 20px;
+    margin-bottom: 30px; /* Added margin-bottom */
+    transition: all 0.3s ease;
+}
+
+.total-yearly h2 {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.total-item {
+    font-size: 16px;
+    font-weight: bold;
+    color: #2d88ff;
+    margin: 5px 0;
+}
+
+/* Add hover effect */
+.chart-container:hover, .total-yearly:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Responsive Design */
+
+/* Tablet and smaller devices */
 @media (max-width: 768px) {
     .title {
         font-size: 1.5em;
@@ -53,8 +92,13 @@ header {
     .chart-container {
         width: 95%;
     }
+
+    .total-yearly {
+        width: 90%;
+    }
 }
 
+/* Mobile devices */
 @media (max-width: 480px) {
     .title {
         font-size: 1.2em;
@@ -62,5 +106,26 @@ header {
 
     .chart-container {
         padding: 15px;
+    }
+    
+    .total-yearly {
+        padding: 15px;
+        margin-top: 15px;
+    }
+}
+
+/* Media query for small smartphones */
+@media (max-width: 320px) {
+    .title {
+        font-size: 1em;
+    }
+
+    .chart-container, .total-yearly {
+        padding: 10px;
+        margin: 10px auto;
+    }
+
+    .total-item {
+        font-size: 14px;
     }
 }
