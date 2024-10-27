@@ -29,12 +29,33 @@ const salesData = {
     ]
 };
 
+// Menghitung total unit terjual per kategori aksesoris
+function calculateTotalUnits(data) {
+    return data.datasets.map(dataset => {
+        return dataset.data.reduce((acc, value) => acc + value, 0);
+    });
+}
+
+// Menampilkan total unit terjual per kategori aksesoris
+function displayTotalUnits(totals) {
+    const totalContainer = document.getElementById("totalSalesContainer");
+    totalContainer.innerHTML = ""; // Clear existing content
+
+    totals.forEach((total, index) => {
+        const accessoryTotal = document.createElement("p");
+        accessoryTotal.textContent = `${accessoryNames[index]}: ${total.toLocaleString()} unit`;
+        accessoryTotal.classList.add("total-item");
+        totalContainer.appendChild(accessoryTotal);
+    });
+}
+
 // Konfigurasi Chart.js
 const config = {
     type: "bar",
     data: salesData,
     options: {
         responsive: true,
+        maintainAspectRatio: false, // Ensures chart is responsive in all sizes
         plugins: {
             legend: {
                 position: "top",
@@ -52,8 +73,14 @@ const config = {
     }
 };
 
-// Render chart
+// Render chart dan tampilkan total unit terjual tahunan
 window.onload = function() {
     const ctx = document.getElementById("salesChart").getContext("2d");
-    new Chart(ctx, config);
+    if (ctx) {
+        new Chart(ctx, config);
+    }
+
+    // Menghitung dan menampilkan total unit terjual
+    const totals = calculateTotalUnits(salesData);
+    displayTotalUnits(totals);
 };
