@@ -1,86 +1,104 @@
-// Data penjualan aksesoris
-const accessoryNames = ["Gelang", "Kalung", "Anting", "Cincin"];
-const salesData = {
-    labels: [
-        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-    ],
-    datasets: [
-        {
-            label: "Gelang",
-            data: [15, 25, 35, 45, 55, 65, 75, 80, 90, 95, 100, 110],
-            backgroundColor: "rgba(75, 192, 192, 0.5)"
-        },
-        {
-            label: "Kalung",
-            data: [10, 20, 30, 35, 50, 60, 70, 75, 80, 85, 90, 95],
-            backgroundColor: "rgba(153, 102, 255, 0.5)"
-        },
-        {
-            label: "Anting",
-            data: [5, 15, 25, 30, 45, 50, 60, 65, 70, 75, 80, 85],
-            backgroundColor: "rgba(255, 159, 64, 0.5)"
-        },
-        {
-            label: "Cincin",
-            data: [8, 18, 28, 35, 48, 55, 65, 70, 78, 85, 90, 95],
-            backgroundColor: "rgba(54, 162, 235, 0.5)"
-        }
-    ]
+// Harga per ubi
+const PRICE_PER_UNIT = 7000;
+
+// Data penjualan dalam unit
+const unitSalesData = {
+    Jan: 850, Feb: 920, Mar: 980, Apr: 1050, May: 1200, 
+    Jun: 1150, Jul: 1300, Aug: 1250, Sep: 1180, 
+    Oct: 1100, Nov: 950, Dec: 850
 };
 
-// Menghitung total unit terjual per kategori aksesoris
-function calculateTotalUnits(data) {
-    return data.datasets.map(dataset => {
-        return dataset.data.reduce((acc, value) => acc + value, 0);
-    });
-}
+// Menghitung revenue berdasarkan unit sales
+const revenueSalesData = {};
+Object.keys(unitSalesData).forEach(month => {
+    revenueSalesData[month] = unitSalesData[month] * PRICE_PER_UNIT;
+});
 
-// Menampilkan total unit terjual per kategori aksesoris
-function displayTotalUnits(totals) {
-    const totalContainer = document.getElementById("totalSalesContainer");
-    totalContainer.innerHTML = ""; // Clear existing content
+// Konfigurasi dasar chart
+let currentMode = 'units';
+const getChartData = (mode) => ({
+    labels: Object.keys(unitSalesData),
+    datasets: [{
+        label: mode === 'units' ? 'Penjualan (Unit)' : 'Penjualan (Juta Rupiah)',
+        data: mode === 'units' 
+            ? Object.values(unitSalesData)
+            : Object.values(revenueSalesData).map(value => value / 1000000), // Konversi ke juta
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 2,
+        borderRadius: 5,
+        barThickness: 25
+    }]
+});
 
-    totals.forEach((total, index) => {
-        const accessoryTotal = document.createElement("p");
-        accessoryTotal.textContent = `${accessoryNames[index]}: ${total.toLocaleString()} unit`;
-        accessoryTotal.classList.add("total-item");
-        totalContainer.appendChild(accessoryTotal);
-    });
-}
-
-// Konfigurasi Chart.js
+// Konfigurasi chart
 const config = {
-    type: "bar",
-    data: salesData,
+    type: 'bar',
+    data: getChartData('units'),
     options: {
         responsive: true,
-        maintainAspectRatio: false, // Ensures chart is responsive in all sizes
+        maintainAspectRatio: false,
         plugins: {
             legend: {
-                position: "top",
-            },
-            title: {
-                display: true,
-                text: "Penjualan Aksesoris per Bulan (2023)"
+                position: 'top',
             }
         },
         scales: {
             y: {
-                beginAtZero: true
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.1)'
+                },
+                ticks: {
+                    callback: function(value) {
+                        if (currentMode === 'units') {
+                            return value + ' Unit';
+                        } else {
+                            return value + ' Jt';
+                        }
+                    }
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                }
             }
         }
     }
 };
 
-// Render chart dan tampilkan total unit terjual tahunan
-window.onload = function() {
-    const ctx = document.getElementById("salesChart").getContext("2d");
-    if (ctx) {
-        new Chart(ctx, config);
-    }
+// Inisialisasi chart
+let myChart;
+window.addEventListener('load', () => {
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    myChart = new Chart(ctx, config);
+});
 
-    // Menghitung dan menampilkan total unit terjual
-    const totals = calculateTotalUnits(salesData);
-    displayTotalUnits(totals);
-};
+// Toggle antara unit dan revenue
+document.getElementById('showUnits').addEventListener('click', function() {
+    currentMode = 'units';
+    this.classList.add('active');
+    document.getElementById('showRevenue').classList.remove('active');
+    myChart.data = getChartData('units');
+    myChart.update();
+});
+
+document.getElementById('showRevenue').addEventListener('click', function() {
+    currentMode = 'revenue';
+    this.classList.add('active');
+    document.getElementById('showUnits').classList.remove('active');
+    myChart.data = getChartData('revenue');
+    myChart.update();
+});
+
+// Event listener untuk menu sidebar
+document.querySelectorAll('.sidebar a').forEach(item => {
+    item.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.classList.remove('active');
+        });
+        item.classList.add('active');
+    });
+});
